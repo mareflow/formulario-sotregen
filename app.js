@@ -263,8 +263,8 @@ function setupEventListeners() {
     const comments = document.getElementById('comments').value.trim();
     const total = getTotalQuestions();
 
-    if (!clientName || !companyName) {
-      errorBox.textContent = 'Por favor, preencha seu nome e o nome da sua empresa.';
+    if (!clientName || !companyName || !contact) {
+      errorBox.textContent = 'Por favor, preencha seu nome, nome da empresa e WhatsApp.';
       errorBox.style.display = 'block';
       window.scrollTo({ top: 180, behavior: 'smooth' });
       return;
