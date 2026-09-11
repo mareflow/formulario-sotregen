@@ -6,6 +6,7 @@ let feedbacksData = [];
 let chartPillarsInstance = null;
 let chartDistributionInstance = null;
 let chartQuestionsInstance = null;
+let chartRadarInstance = null;
 
 const QUESTION_TITLES = {
   q1: 'Clareza nos Alinhamentos e Relatórios',
@@ -148,9 +149,9 @@ function calculateKPIs() {
   npsElem.style.color = nps >= 50 ? '#34d399' : '#38bdf8';
 
   document.getElementById('kpi-nps-distribution').innerHTML = `
-    <span style="color: #34d399;">● ${promotores} Promotores</span> | 
+    <span style="color: #34d399;">● ${promotores} Favoráveis</span> | 
     <span style="color: #facc15;">● ${neutros} Neutros</span> | 
-    <span style="color: #f87171;">● ${detratores} Detratores</span>
+    <span style="color: #f87171;">● ${detratores} Críticos</span>
   `;
 
   // Intenção de Renovação (Pergunta Chave Q12)
@@ -183,7 +184,7 @@ function calculateKPIs() {
   document.getElementById('bar-estrategia').style.width = `${(avgEstVal / 5) * 100}%`;
 
   document.getElementById('pillar-desempenho').innerHTML = `${avgDesVal} <span style="font-size: 13px; color: var(--text-muted);">/ 5</span>`;
-  document.getElementById('bar-desempenho').style.width = `${(avgDesempenho / 5) * 100}%`;
+  document.getElementById('bar-desempenho').style.width = `${(avgDesVal / 5) * 100}%`;
 
   document.getElementById('pillar-parceria').innerHTML = `${avgParVal} <span style="font-size: 13px; color: var(--text-muted);">/ 5</span>`;
   document.getElementById('bar-parceria').style.width = `${(avgParVal / 5) * 100}%`;
@@ -271,6 +272,40 @@ function renderCharts() {
       plugins: {
         legend: { position: 'bottom', labels: { color: '#cbd5e1', padding: 12, font: { size: 11.5 } } }
       }
+    }
+  });
+
+  // 3. Gráfico Radar (Equilíbrio)
+  const ctxRadar = document.getElementById('chartRadar').getContext('2d');
+  if (chartRadarInstance) chartRadarInstance.destroy();
+  chartRadarInstance = new Chart(ctxRadar, {
+    type: 'radar',
+    data: {
+      labels: ['Comunicação', 'Estratégia', 'Desempenho', 'Parceria'],
+      datasets: [{
+        label: 'Média Consolidada',
+        data: [avgCom, avgEst, avgDes, avgPar],
+        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+        borderColor: '#818cf8',
+        pointBackgroundColor: '#818cf8',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#818cf8',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          pointLabels: { color: '#cbd5e1', font: { size: 12, weight: '600' } },
+          ticks: { color: '#94a3b8', backdropColor: 'transparent', stepSize: 1, min: 0, max: 5 }
+        }
+      },
+      plugins: { legend: { display: false } }
     }
   });
 

@@ -89,16 +89,16 @@
         <div class="kpi-sub" id="kpi-csat-percent">Satisfação média na escala 1 a 5</div>
       </div>
 
-      <!-- NPS -->
+      <!-- NPS -> Índice de Recomendação -->
       <div class="kpi-box">
         <div>
           <div class="kpi-top">
-            <span>Net Promoter Score (NPS)</span>
+            <span>Índice de Recomendação</span>
             <span>📈</span>
           </div>
           <div class="kpi-num" style="color: #38bdf8;" id="kpi-nps">0</div>
         </div>
-        <div class="kpi-sub" id="kpi-nps-distribution">0 Promotores | 0 Neutros | 0 Detratores</div>
+        <div class="kpi-sub" id="kpi-nps-distribution">0 Favoráveis | 0 Neutros | 0 Críticos</div>
       </div>
 
       <!-- Intenção de Renovação (Pergunta Chave) -->
@@ -172,6 +172,16 @@
         </div>
         <div class="chart-container">
           <canvas id="chartDistribution"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-title">
+          <span>Equilíbrio de Qualidade (Radar)</span>
+          <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">Performance Geral</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartRadar"></canvas>
         </div>
       </div>
     </div>
