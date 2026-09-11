@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sotregen | Pesquisa de Satisfação & Tráfego Pago</title>
+  <meta name="description" content="Pesquisa de satisfação e qualidade dos serviços de tráfego pago da Sotregen.">
+  
+  <!-- Fontes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Puro -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Header de Navegação -->
+  <header class="header-nav container">
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div class="brand-info">
+        <h1>Sotregen</h1>
+        <span>Agência de Tráfego Pago</span>
+      </div>
+    </div>
+
+    <div>
+      <span class="badge-tag" style="background: rgba(14, 165, 233, 0.12); color: #38bdf8; border-color: rgba(14, 165, 233, 0.25);">
+        Pesquisa de Qualidade
+      </span>
+    </div>
+  </header>
+
+  <main class="container" id="main-content">
+    <!-- Barra de Progresso Sticky -->
+    <div class="progress-bar-container">
+      <div class="progress-header">
+        <span>Progresso: <strong id="answered-count">0</strong> de <strong id="total-count">13</strong> perguntas respondidas</span>
+        <span id="progress-percentage" style="font-weight: 700; color: #38bdf8;">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Banner Hero -->
+    <div class="card hero-box">
+      <h2>Pesquisa de Satisfação & Performance</h2>
+      <p>
+        Queremos garantir que sua empresa alcance os melhores resultados possíveis com tráfego pago. 
+        Sua avaliação honesta é fundamental para direcionarmos melhor a comunicação, as estratégias e o retorno sobre seu investimento.
+      </p>
+      <div class="hero-badges">
+        <span class="badge-tag">⏱️ Tempo médio: ~2 minutos</span>
+        <span class="badge-tag">🔒 13 perguntas rápidas + 1 espaço aberto</span>
+      </div>
+    </div>
+
+    <form id="survey-form">
+      <!-- 1. Identificação -->
+      <div class="card">
+        <h3>Identificação do Responsável e Empresa</h3>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">
+          Preencha seus dados para sabermos quem está avaliando o projeto na Sotregen.
+        </p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="clientName">Seu Nome <span class="req">*</span></label>
+            <input type="text" id="clientName" class="input-text" placeholder="Ex: Rodrigo Medeiros" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="companyName">Nome da sua Empresa / Marca <span class="req">*</span></label>
+            <input type="text" id="companyName" class="input-text" placeholder="Ex: Medeiros Odontologia" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="contact">WhatsApp ou E-mail (Opcional)</label>
+            <input type="text" id="contact" class="input-text" placeholder="Ex: (11) 99999-8888">
+          </div>
+        </div>
+      </div>
+
+      <!-- Container onde as perguntas por pilar serão renderizadas via JavaScript -->
+      <div id="questions-container"></div>
+
+      <!-- Pergunta Aberta Dissertativa -->
+      <div class="card" style="margin-top: 24px;">
+        <h3>Espaço Aberto: Elogios, Sugestões ou Pontos de Melhoria</h3>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px; margin-bottom: 14px;">
+          Este espaço é totalmente livre para você compartilhar qualquer percepção, detalhe do atendimento ou direcionamento que gostaria de nos dar.
+        </p>
+        <textarea id="comments" class="textarea-text" style="width: 100%;" placeholder="Escreva aqui seus comentários, sugestões ou elogios para nossa equipe..."></textarea>
+      </div>
+
+      <!-- Mensagem de Alerta/Erro -->
+      <div id="form-error" style="display: none; padding: 14px; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; border-radius: 8px; color: #fca5a5; margin-bottom: 20px; font-size: 14px;"></div>
+
+      <!-- Botão de Envio -->
+      <div class="card" style="text-align: center; padding: 32px;">
+        <p id="submit-status-text" style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+          Por favor, responda a todas as perguntas acima para concluir o envio da avaliação.
+        </p>
+        <button type="submit" id="btn-submit" class="btn-primary" disabled>
+          Enviar Minha Avaliação
+        </button>
+      </div>
+    </form>
+
+    <!-- Tela de Agradecimento (Oculta por padrão) -->
+    <div id="success-screen" class="card success-card" style="display: none;">
+      <div class="success-icon">✓</div>
+      <h2>Muito Obrigado pela Avaliação!</h2>
+      <p style="color: var(--text-muted); margin: 12px 0 24px 0;" id="success-client-msg">
+        Suas respostas foram salvas com sucesso e nos ajudarão diretamente a aprimorar as campanhas e a parceria com sua empresa.
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" class="btn-primary" onclick="resetForm()">Enviar Outra Resposta</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

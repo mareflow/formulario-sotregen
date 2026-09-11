@@ -1,0 +1,64 @@
+[
+  {
+    "id": "sot_1789135118428_m24y",
+    "createdAt": "2026-09-11T13:58:38.428Z",
+    "clientName": "Bruno Alcantara",
+    "companyName": "Alcantara Engenharia",
+    "contact": "(11) 97777-6666",
+    "answers": {
+      "q1": 5,
+      "q2": 5,
+      "q3": 5,
+      "q4": 5,
+      "q5": 5,
+      "q6": 5,
+      "q7": 5,
+      "q8": 5,
+      "q9": 5,
+      "q10": 5,
+      "q11": 5,
+      "q12": 5,
+      "q13": 5
+    },
+    "comments": "Certeza absoluta de renovar por mais 12 meses com a Sotregen!",
+    "metrics": {
+      "avgComunicacao": 5,
+      "avgEstrategia": 5,
+      "avgDesempenho": 5,
+      "avgParceria": 5,
+      "overallAvg": 5,
+      "renovacaoScore": 5,
+      "npsCategory": "promotor"
+    }
+  },
+  {
+    "id": "sot_1789131911231_1uli",
+    "createdAt": "2026-09-11T13:05:11.231Z",
+    "clientName": "Rodrigo Medeiros",
+    "companyName": "Medeiros Odonto VIP",
+    "contact": "(11) 98888-7777",
+    "answers": {
+      "q1": 5,
+      "q2": 5,
+      "q3": 4,
+      "q4": 5,
+      "q5": 4,
+      "q6": 5,
+      "q7": 4,
+      "q8": 5,
+      "q9": 4,
+      "q10": 5,
+      "q11": 5,
+      "q12": 5
+    },
+    "comments": "Excelente trabalho com o tráfego pago da Sotregen!",
+    "metrics": {
+      "avgComunicacao": 4.67,
+      "avgEstrategia": 4.67,
+      "avgDesempenho": 4.33,
+      "avgParceria": 5,
+      "overallAvg": 4.67,
+      "npsCategory": "promotor"
+    }
+  }
+]

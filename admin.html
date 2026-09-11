@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sotregen | Painel de Gestão & Análise de Satisfação</title>
+  <meta name="description" content="Dashboard com métricas e gráficos de satisfação da Sotregen Agência de Tráfego Pago.">
+  
+  <!-- Fontes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js via CDN (Sem compilação, leve e rápido) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- CSS Puro -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Header Administrativo -->
+  <header class="header-nav container-wide">
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div class="brand-info">
+        <h1>Sotregen</h1>
+        <span>Painel Interno da Agência • Tráfego Pago</span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="badge-tag" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">
+        🔒 Área Exclusiva da Gestão
+      </span>
+    </div>
+  </header>
+
+  <main class="container-wide">
+    <!-- Topbar com Ações -->
+    <div class="dash-header">
+      <div>
+        <h2 style="font-size: 26px;">Painel de Satisfação Sotregen</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Métricas consolidadas de atendimento, estratégia, resultados e recomendação</p>
+      </div>
+
+      <div class="dash-actions">
+        <button class="btn-primary" id="btn-copy-link" onclick="copyFormLink()">
+          📋 Copiar Link do Formulário
+        </button>
+        <button class="btn-secondary" onclick="exportToCSV()">
+          📥 Exportar Excel (CSV)
+        </button>
+        <button class="btn-secondary" id="btn-seed" onclick="seedDemoData()">
+          ✨ Carregar 3 Exemplos Demo
+        </button>
+      </div>
+    </div>
+
+    <!-- 1. Cards de Indicadores Chave (KPIs) -->
+    <div class="kpi-grid">
+      <!-- Total de Avaliações -->
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-top">
+            <span>Total de Avaliações</span>
+            <span>👥</span>
+          </div>
+          <div class="kpi-num" id="kpi-total">0</div>
+        </div>
+        <div class="kpi-sub">Clientes que preencheram o formulário</div>
+      </div>
+
+      <!-- CSAT Geral -->
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-top">
+            <span>CSAT Médio Geral</span>
+            <span>⭐</span>
+          </div>
+          <div class="kpi-num" style="color: #34d399;" id="kpi-csat">0.00</div>
+        </div>
+        <div class="kpi-sub" id="kpi-csat-percent">Satisfação média na escala 1 a 5</div>
+      </div>
+
+      <!-- NPS -->
+      <div class="kpi-box">
+        <div>
+          <div class="kpi-top">
+            <span>Net Promoter Score (NPS)</span>
+            <span>📈</span>
+          </div>
+          <div class="kpi-num" style="color: #38bdf8;" id="kpi-nps">0</div>
+        </div>
+        <div class="kpi-sub" id="kpi-nps-distribution">0 Promotores | 0 Neutros | 0 Detratores</div>
+      </div>
+
+      <!-- Intenção de Renovação (Pergunta Chave) -->
+      <div class="kpi-box" style="border-color: rgba(251, 191, 36, 0.3);">
+        <div>
+          <div class="kpi-top">
+            <span style="color: #fbbf24;">Intenção de Renovação</span>
+            <span>🔄</span>
+          </div>
+          <div class="kpi-num" style="color: #fbbf24;" id="kpi-renovacao">0.00 <span style="font-size: 15px; color: var(--text-muted);">/ 5</span></div>
+        </div>
+        <div class="kpi-sub" id="kpi-renovacao-sub" style="color: #fde68a;">0% com alta intenção de renovar</div>
+      </div>
+    </div>
+
+    <!-- 2. Médias dos 4 Pilares -->
+    <div class="pillar-score-grid">
+      <div class="pillar-score-card">
+        <div class="pillar-score-title">
+          <span>Comunicação & Atendimento</span>
+          <span>⚡</span>
+        </div>
+        <div class="pillar-score-val" style="color: #38bdf8;" id="pillar-comunicacao">0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span></div>
+        <div class="mini-bar"><div class="mini-bar-fill" id="bar-comunicacao" style="width: 0%; background: #38bdf8;"></div></div>
+      </div>
+
+      <div class="pillar-score-card">
+        <div class="pillar-score-title">
+          <span>Estratégia & Planejamento</span>
+          <span>🎯</span>
+        </div>
+        <div class="pillar-score-val" style="color: #818cf8;" id="pillar-estrategia">0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span></div>
+        <div class="mini-bar"><div class="mini-bar-fill" id="bar-estrategia" style="width: 0%; background: #818cf8;"></div></div>
+      </div>
+
+      <div class="pillar-score-card">
+        <div class="pillar-score-title">
+          <span>Desempenho & ROI</span>
+          <span>🏆</span>
+        </div>
+        <div class="pillar-score-val" style="color: #34d399;" id="pillar-desempenho">0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span></div>
+        <div class="mini-bar"><div class="mini-bar-fill" id="bar-desempenho" style="width: 0%; background: #34d399;"></div></div>
+      </div>
+
+      <div class="pillar-score-card">
+        <div class="pillar-score-title">
+          <span>Parceria & Confiança</span>
+          <span>🤝</span>
+        </div>
+        <div class="pillar-score-val" style="color: #fbbf24;" id="pillar-parceria">0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span></div>
+        <div class="mini-bar"><div class="mini-bar-fill" id="bar-parceria" style="width: 0%; background: #fbbf24;"></div></div>
+      </div>
+    </div>
+
+    <!-- 3. Gráficos Interativos -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-card-title">
+          <span>Média por Pilar Estratégico</span>
+          <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Escala 1 a 5</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartPillars"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-title">
+          <span>Distribuição de Satisfação (CSAT)</span>
+          <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Visão Geral</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartDistribution"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico Horizontal por Pergunta -->
+    <div class="chart-card" style="margin-bottom: 28px;">
+      <div class="chart-card-title">
+        <div>
+          <span>Detalhamento por Pergunta (12 Itens Avaliados)</span>
+          <p style="font-size: 12.5px; color: var(--text-muted); font-weight: normal; margin-top: 3px;">
+            Identifique rapidamente os pontos fortes e o que precisa de alinhamento na agência
+          </p>
+        </div>
+      </div>
+      <div class="chart-container" style="height: 380px;">
+        <canvas id="chartQuestions"></canvas>
+      </div>
+    </div>
+
+    <!-- 4. Mural de Comentários Textuais Abertos -->
+    <div class="card" style="margin-bottom: 28px;">
+      <h3 style="font-size: 18px;">💬 O que os Clientes Estão Dizendo (Feedbacks Abertos)</h3>
+      <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">
+        Comentários dissertativos, elogios e sugestões deixados no formulário
+      </p>
+
+      <div class="comments-masonry" id="comments-container">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+
+    <!-- 5. Tabela de Histórico de Avaliações -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 12px;">
+        <div>
+          <h3 style="font-size: 18px;">Histórico Completo de Respostas</h3>
+          <p style="font-size: 13px; color: var(--text-muted);">Clique em "Ver Ficha" para examinar todas as 12 notas do cliente</p>
+        </div>
+
+        <input type="text" id="search-input" class="input-text" placeholder="Buscar por cliente ou empresa..." style="width: 260px;" oninput="filterTable()">
+      </div>
+
+      <div class="table-box">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Empresa / Marca</th>
+              <th>Responsável</th>
+              <th>Contato</th>
+              <th>Média Geral</th>
+              <th>NPS</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Linhas preenchidas via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Detalhes Individuais -->
+  <div id="modal" class="modal-backdrop" style="display: none;" onclick="closeModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+          <h3 id="modal-company" style="font-size: 20px;">Empresa</h3>
+          <p id="modal-meta" style="font-size: 13px; color: var(--text-muted);">Respondido por ...</p>
+        </div>
+        <button class="btn-secondary" onclick="closeModal()" style="padding: 4px 10px;">✕</button>
+      </div>
+
+      <!-- Resumo de Médias do Cliente -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px;" id="modal-averages"></div>
+
+      <h4 style="font-size: 14px; color: #cbd5e1; margin-bottom: 10px;">Respostas Pergunta a Pergunta:</h4>
+      <div id="modal-questions-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;"></div>
+
+      <div id="modal-comment-box" style="display: none; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.2); padding: 14px; border-radius: 8px;">
+        <div style="font-size: 12px; color: #38bdf8; font-weight: 700; margin-bottom: 4px;">Comentário Livre do Cliente:</div>
+        <div id="modal-comment-text" style="font-style: italic; font-size: 14px; color: #e2e8f0;"></div>
+      </div>
+
+      <div style="margin-top: 20px; text-align: right;">
+        <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" style="display: none;"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
