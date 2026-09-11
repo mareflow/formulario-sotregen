@@ -110,7 +110,7 @@ function calculateKPIs() {
     document.getElementById('kpi-csat').textContent = '0.00';
     document.getElementById('kpi-csat-percent').textContent = 'Nenhuma resposta ainda';
     document.getElementById('kpi-nps').textContent = '0';
-    document.getElementById('kpi-nps-distribution').textContent = '0 Promotores | 0 Neutros | 0 Detratores';
+    document.getElementById('kpi-nps-distribution').textContent = '0 Favoráveis | 0 Neutros | 0 Críticos';
     return;
   }
 
