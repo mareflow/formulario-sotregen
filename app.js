@@ -2,6 +2,11 @@
 // SOTREGEN — Script do Formulário do Cliente (JavaScript Puro)
 // ==============================================================================
 
+// URL da Planilha Google (Apps Script Web App)
+function getGoogleSheetsUrl() {
+  return window.SOTREGEN_SHEETS_URL || localStorage.getItem('sotregen_sheets_url') || '';
+}
+
 const PILLARS = [
   {
     id: 'comunicacao',
@@ -284,7 +289,22 @@ function setupEventListeners() {
     btnSubmit.setAttribute('disabled', 'true');
 
     try {
-      // 1. Tentar salvar no servidor local via API
+      // 1. Se houver Google Sheets configurado, envia para a planilha na nuvem
+      const sheetsUrl = getGoogleSheetsUrl();
+      if (sheetsUrl) {
+        try {
+          await fetch(sheetsUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } catch (sheetErr) {
+          console.warn('Aviso: envio para Google Sheets:', sheetErr);
+        }
+      }
+
+      // 2. Tentar salvar no servidor local via API se estiver rodando
       let saved = false;
       try {
         const res = await fetch('/api/feedbacks', {
@@ -299,7 +319,7 @@ function setupEventListeners() {
         console.warn('Servidor offline, salvando localmente no navegador:', err);
       }
 
-      // 2. Sempre salvar também no localStorage para garantir persistência autônoma
+      // 3. Sempre salvar também no localStorage para garantir persistência autônoma
       saveToLocalStorage(payload);
 
       // Exibir tela de sucesso

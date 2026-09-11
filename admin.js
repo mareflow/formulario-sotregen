@@ -23,26 +23,67 @@ const QUESTION_TITLES = {
   q13: 'Indicação e Recomendação'
 };
 
+// URL da Planilha Google (Apps Script Web App)
+function getGoogleSheetsUrl() {
+  return window.SOTREGEN_SHEETS_URL || localStorage.getItem('sotregen_sheets_url') || '';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  updateSheetsStatusBadge();
   loadData();
 });
 
+function updateSheetsStatusBadge() {
+  const pill = document.getElementById('sheets-status-pill');
+  if (!pill) return;
+  const url = getGoogleSheetsUrl();
+  if (url) {
+    pill.textContent = '🟢 Google Sheets: Conectado';
+    pill.style.background = 'rgba(16, 185, 129, 0.15)';
+    pill.style.color = '#34d399';
+    pill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+  } else {
+    pill.textContent = '⚪ Google Sheets: Não conectado';
+    pill.style.background = 'rgba(148, 163, 184, 0.15)';
+    pill.style.color = '#94a3b8';
+    pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+  }
+}
+
 async function loadData() {
-  // 1. Tenta carregar do servidor via API
-  let loadedFromServer = false;
-  try {
-    const res = await fetch('/api/feedbacks');
-    if (res.ok) {
+  let loadedFromCloud = false;
+  const sheetsUrl = getGoogleSheetsUrl();
+
+  // 1. Tenta carregar do Google Sheets se configurado
+  if (sheetsUrl) {
+    try {
+      const res = await fetch(sheetsUrl);
       const data = await res.json();
-      feedbacksData = data.feedbacks || [];
-      loadedFromServer = true;
+      if (data.feedbacks && data.feedbacks.length > 0) {
+        feedbacksData = data.feedbacks;
+        loadedFromCloud = true;
+      }
+    } catch (err) {
+      console.warn('Aviso: erro ao sincronizar com Google Sheets:', err);
     }
-  } catch (err) {
-    console.warn('API indisponível, usando armazenamento local do navegador.');
   }
 
-  // 2. Se não carregou do servidor ou estiver vazio, carrega do localStorage
-  if (!loadedFromServer || feedbacksData.length === 0) {
+  // 2. Tenta carregar do servidor local via API se não carregou da nuvem
+  if (!loadedFromCloud) {
+    try {
+      const res = await fetch('/api/feedbacks');
+      if (res.ok) {
+        const data = await res.json();
+        feedbacksData = data.feedbacks || [];
+        loadedFromCloud = true;
+      }
+    } catch (err) {
+      // API local offline, prossegue para o armazenamento local
+    }
+  }
+
+  // 3. Fallback para o armazenamento local se necessário
+  if (!loadedFromCloud || feedbacksData.length === 0) {
     const local = JSON.parse(localStorage.getItem('sotregen_feedbacks') || '[]');
     if (local.length > 0) {
       feedbacksData = local;
@@ -564,3 +605,89 @@ function escapeHtml(text) {
     "'": '&#039;'
   }[m]));
 }
+
+// ------------------------------------------------------------------------------
+// Configuração Visual do Google Sheets
+// ------------------------------------------------------------------------------
+window.openSheetsModal = function() {
+  const modal = document.getElementById('sheets-modal');
+  const input = document.getElementById('input-sheets-url');
+  if (input) {
+    input.value = getGoogleSheetsUrl();
+  }
+  const res = document.getElementById('sheets-test-result');
+  if (res) res.style.display = 'none';
+  if (modal) modal.style.display = 'flex';
+};
+
+window.closeSheetsModal = function() {
+  const modal = document.getElementById('sheets-modal');
+  if (modal) modal.style.display = 'none';
+};
+
+window.saveSheetsUrl = async function() {
+  const input = document.getElementById('input-sheets-url');
+  const resBox = document.getElementById('sheets-test-result');
+  const rawUrl = (input ? input.value : '').trim();
+
+  if (!rawUrl) {
+    localStorage.removeItem('sotregen_sheets_url');
+    updateSheetsStatusBadge();
+    showToast('Conexão com Google Sheets desvinculada.');
+    closeSheetsModal();
+    return;
+  }
+
+  if (!rawUrl.startsWith('https://script.google.com/macros/s/')) {
+    if (resBox) {
+      resBox.style.display = 'block';
+      resBox.style.color = '#f87171';
+      resBox.textContent = '⚠️ A URL deve começar com "https://script.google.com/macros/s/..."';
+    }
+    return;
+  }
+
+  if (resBox) {
+    resBox.style.display = 'block';
+    resBox.style.color = '#38bdf8';
+    resBox.textContent = 'Sincronizando com a planilha...';
+  }
+
+  try {
+    localStorage.setItem('sotregen_sheets_url', rawUrl);
+    updateSheetsStatusBadge();
+
+    const resp = await fetch(rawUrl);
+    const json = await resp.json();
+    
+    if (json && json.feedbacks && json.feedbacks.length > 0) {
+      feedbacksData = json.feedbacks;
+      renderDashboard();
+      showToast(`✅ Conectado! ${json.feedbacks.length} respostas sincronizadas da planilha.`);
+    } else {
+      showToast('✅ Planilha conectada com sucesso! (Aguardando primeiras respostas)');
+    }
+    
+    closeSheetsModal();
+  } catch (err) {
+    // Mesmo se houver bloqueio temporário, a URL fica salva
+    localStorage.setItem('sotregen_sheets_url', rawUrl);
+    updateSheetsStatusBadge();
+    showToast('✅ URL da planilha salva com sucesso!');
+    closeSheetsModal();
+  }
+};
+
+window.copyAppsScriptCode = async function() {
+  try {
+    const res = await fetch('google-sheets-script.js');
+    if (res.ok) {
+      const code = await res.text();
+      await navigator.clipboard.writeText(code);
+      showToast('📋 Código do Apps Script copiado para a área de transferência!');
+      return;
+    }
+  } catch (e) {}
+  showToast('Abra o arquivo google-sheets-script.js na pasta do projeto para copiar.');
+};
+

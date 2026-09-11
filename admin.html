@@ -30,6 +30,9 @@
     </div>
 
     <div style="display: flex; align-items: center; gap: 10px;">
+      <span id="sheets-status-pill" class="badge-tag" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border-color: rgba(148, 163, 184, 0.3);">
+        ⚪ Google Sheets: Não conectado
+      </span>
       <span class="badge-tag" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">
         🔒 Área Exclusiva da Gestão
       </span>
@@ -47,6 +50,9 @@
       <div class="dash-actions">
         <button class="btn-primary" id="btn-copy-link" onclick="copyFormLink()">
           📋 Copiar Link do Formulário
+        </button>
+        <button class="btn-secondary" onclick="openSheetsModal()">
+          📊 Conectar Google Sheets
         </button>
         <button class="btn-secondary" onclick="exportToCSV()">
           📥 Exportar Excel (CSV)
@@ -257,9 +263,57 @@
     </div>
   </div>
 
+  <!-- Modal de Configuração do Google Sheets -->
+  <div id="sheets-modal" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeSheetsModal()">
+    <div class="modal-card" style="max-width: 640px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">📊</span>
+          <h3 style="font-size: 20px;">Conectar com Google Sheets</h3>
+        </div>
+        <button class="btn-secondary" onclick="closeSheetsModal()" style="padding: 4px 10px;">✕</button>
+      </div>
+
+      <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+        Salve todas as respostas dos clientes diretamente em uma planilha no seu Google Drive, de forma gratuita e sem limite de respostas.
+      </p>
+
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+        <h4 style="font-size: 14px; color: #38bdf8; margin-bottom: 10px;">Passo a Passo (2 minutos):</h4>
+        <ol style="margin-left: 20px; font-size: 13px; color: #cbd5e1; line-height: 1.8;">
+          <li>Abra o <strong>Google Drive</strong> e crie uma <strong>Planilha Google</strong> vazia.</li>
+          <li>No menu da planilha, clique em <strong>Extensões</strong> &gt; <strong>Apps Script</strong>.</li>
+          <li>Apague qualquer texto que estiver lá e cole o código da Sotregen (<button type="button" onclick="copyAppsScriptCode()" style="background: none; border: none; color: #38bdf8; text-decoration: underline; cursor: pointer; padding: 0; font-size: 13px; font-weight: 600;">clique aqui para copiar o código</button>).</li>
+          <li>Clique no botão azul <strong>Implantar</strong> (topo direito) &gt; <strong>Nova implantação</strong>.</li>
+          <li>No ícone da engrenagem, selecione <strong>App da Web</strong>. Em "Quem tem acesso", marque <strong>Qualquer pessoa</strong>.</li>
+          <li>Clique em <strong>Implantar</strong>, dê a autorização e copie a <strong>URL do App da Web</strong>.</li>
+        </ol>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">
+          Cole a URL do App da Web gerada:
+        </label>
+        <input 
+          type="url" 
+          id="input-sheets-url" 
+          placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+          style="width: 100%; padding: 12px 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;"
+        >
+        <div id="sheets-test-result" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn-secondary" onclick="closeSheetsModal()">Cancelar</button>
+        <button class="btn-primary" onclick="saveSheetsUrl()">Salvar e Sincronizar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="toast" style="display: none;"></div>
 
+  <script src="config.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
