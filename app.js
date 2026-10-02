@@ -293,14 +293,16 @@ function setupEventListeners() {
       const sheetsUrl = getGoogleSheetsUrl();
       if (sheetsUrl) {
         try {
+          console.log('Enviando para Google Sheets:', sheetsUrl);
           await fetch(sheetsUrl, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
           });
+          console.log('Envio para Google Sheets concluído.');
         } catch (sheetErr) {
-          console.warn('Aviso: envio para Google Sheets:', sheetErr);
+          console.error('Erro no envio para Google Sheets:', sheetErr);
         }
       }
 
