@@ -623,6 +623,24 @@ window.seedDemoData = function() {
   showToast('3 avaliações de exemplo carregadas nos gráficos!');
 };
 
+window.clearAllFeedbacks = async function() {
+  if (!confirm('Deseja realmente limpar todos os dados e avaliações salvas localmente?')) {
+    return;
+  }
+
+  feedbacksData = [];
+  localStorage.removeItem('sotregen_feedbacks');
+
+  try {
+    await fetch('/api/feedbacks', { method: 'DELETE' });
+  } catch (e) {
+    // API offline ou rodando estático
+  }
+
+  renderDashboard();
+  showToast('🗑️ Todas as avaliações locais foram removidas!');
+};
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;

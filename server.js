@@ -53,6 +53,16 @@ app.get('/api/feedbacks', (req, res) => {
   res.json({ count: feedbacks.length, feedbacks });
 });
 
+// Rota para limpar todas as avaliações
+app.delete('/api/feedbacks', (req, res) => {
+  try {
+    saveFeedbacks([]);
+    res.json({ success: true, message: 'Dados limpos com sucesso.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao limpar dados.' });
+  }
+});
+
 // Rota para salvar avaliação do cliente
 app.post('/api/feedbacks', (req, res) => {
   try {
