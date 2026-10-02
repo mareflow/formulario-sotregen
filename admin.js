@@ -32,6 +32,11 @@ function getGoogleSheetsUrl() {
 document.addEventListener('DOMContentLoaded', () => {
   updateSheetsStatusBadge();
   loadData();
+  
+  // Atualiza automaticamente a cada 60 segundos
+  setInterval(() => {
+    loadData(false);
+  }, 60000);
 });
 
 function updateSheetsStatusBadge() {
@@ -44,28 +49,84 @@ function updateSheetsStatusBadge() {
     pill.style.color = '#34d399';
     pill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
   } else {
-    pill.textContent = '⚪ Google Sheets: Não conectado';
+    pill.textContent = '⚪ Google Sheets: Não configurado';
     pill.style.background = 'rgba(148, 163, 184, 0.15)';
     pill.style.color = '#94a3b8';
     pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
   }
 }
 
-async function loadData() {
+window.copyFormLink = async function() {
+  let formUrl = window.location.href;
+  if (formUrl.includes('admin.html')) {
+    formUrl = formUrl.replace('admin.html', 'index.html');
+  } else if (formUrl.endsWith('/admin') || formUrl.endsWith('/admin/')) {
+    formUrl = formUrl.replace(/\/admin\/?$/, '/');
+  } else if (!formUrl.includes('index.html')) {
+    formUrl = formUrl.replace(/\/?$/, '/index.html');
+  }
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(formUrl);
+    } else {
+      const temp = document.createElement('input');
+      temp.value = formUrl;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+    }
+    showToast('🔗 Link do formulário copiado para a área de transferência!');
+  } catch (e) {
+    prompt('Copie o link do formulário abaixo:', formUrl);
+  }
+};
+
+window.loadData = async function(isUserAction = false) {
   let loadedFromCloud = false;
   const sheetsUrl = getGoogleSheetsUrl();
+  const pill = document.getElementById('sheets-status-pill');
+  const btnRefresh = document.getElementById('btn-refresh');
+
+  if (isUserAction && btnRefresh) {
+    btnRefresh.textContent = '⏳ Atualizando...';
+    btnRefresh.setAttribute('disabled', 'true');
+  }
+
+  if (pill && sheetsUrl) {
+    pill.textContent = '🟡 Sincronizando com a Planilha...';
+    pill.style.background = 'rgba(250, 204, 21, 0.15)';
+    pill.style.color = '#facc15';
+  }
 
   // 1. Tenta carregar do Google Sheets se configurado
   if (sheetsUrl) {
     try {
       const res = await fetch(sheetsUrl);
       const data = await res.json();
-      if (data.feedbacks && data.feedbacks.length > 0) {
+      if (data && Array.isArray(data.feedbacks)) {
         feedbacksData = data.feedbacks;
         loadedFromCloud = true;
+        if (pill) {
+          pill.textContent = `🟢 Planilha: ${feedbacksData.length} ${feedbacksData.length === 1 ? 'resposta' : 'respostas'}`;
+          pill.style.background = 'rgba(16, 185, 129, 0.15)';
+          pill.style.color = '#34d399';
+        }
+        if (isUserAction) {
+          showToast(`✅ ${feedbacksData.length} avaliações sincronizadas da planilha!`);
+        }
       }
     } catch (err) {
       console.warn('Aviso: erro ao sincronizar com Google Sheets:', err);
+      if (pill) {
+        pill.textContent = '⚠️ Google Sheets: Verifique a conexão';
+        pill.style.background = 'rgba(239, 68, 68, 0.15)';
+        pill.style.color = '#f87171';
+      }
+      if (isUserAction) {
+        showToast('⚠️ Erro ao consultar a planilha. Tente novamente.');
+      }
     }
   }
 
@@ -79,7 +140,7 @@ async function loadData() {
         loadedFromCloud = true;
       }
     } catch (err) {
-      // API local offline, prossegue para o armazenamento local
+      // API local offline
     }
   }
 
@@ -91,9 +152,14 @@ async function loadData() {
     }
   }
 
+  if (isUserAction && btnRefresh) {
+    btnRefresh.textContent = '🔄 Atualizar Dados';
+    btnRefresh.removeAttribute('disabled');
+  }
+
   // Atualizar tela
   renderDashboard();
-}
+};
 
 function renderDashboard() {
   calculateKPIs();
