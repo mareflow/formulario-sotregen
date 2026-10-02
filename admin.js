@@ -110,7 +110,35 @@ function calculateKPIs() {
     document.getElementById('kpi-csat').textContent = '0.00';
     document.getElementById('kpi-csat-percent').textContent = 'Nenhuma resposta ainda';
     document.getElementById('kpi-nps').textContent = '0';
-    document.getElementById('kpi-nps-distribution').textContent = '0 Favoráveis | 0 Neutros | 0 Críticos';
+    document.getElementById('kpi-nps').style.color = '#38bdf8';
+    document.getElementById('kpi-nps-distribution').innerHTML = '0 Favoráveis | 0 Neutros | 0 Críticos';
+
+    const renElem = document.getElementById('kpi-renovacao');
+    if (renElem) {
+      renElem.innerHTML = `0.00 <span style="font-size: 15px; color: var(--text-muted);">/ 5</span>`;
+      document.getElementById('kpi-renovacao-sub').textContent = '0% com alta intenção de renovar (notas 4 e 5)';
+    }
+
+    const pCom = document.getElementById('pillar-comunicacao');
+    if (pCom) pCom.innerHTML = `0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span>`;
+    const bCom = document.getElementById('bar-comunicacao');
+    if (bCom) bCom.style.width = '0%';
+
+    const pEst = document.getElementById('pillar-estrategia');
+    if (pEst) pEst.innerHTML = `0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span>`;
+    const bEst = document.getElementById('bar-estrategia');
+    if (bEst) bEst.style.width = '0%';
+
+    const pDes = document.getElementById('pillar-desempenho');
+    if (pDes) pDes.innerHTML = `0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span>`;
+    const bDes = document.getElementById('bar-desempenho');
+    if (bDes) bDes.style.width = '0%';
+
+    const pPar = document.getElementById('pillar-parceria');
+    if (pPar) pPar.innerHTML = `0.00 <span style="font-size: 13px; color: var(--text-muted);">/ 5</span>`;
+    const bPar = document.getElementById('bar-parceria');
+    if (bPar) bPar.style.width = '0%';
+
     return;
   }
 
@@ -624,12 +652,13 @@ window.seedDemoData = function() {
 };
 
 window.clearAllFeedbacks = async function() {
-  if (!confirm('Deseja realmente limpar todos os dados e avaliações salvas localmente?')) {
+  if (!confirm('Deseja realmente limpar todos os dados e avaliações salvas?')) {
     return;
   }
 
   feedbacksData = [];
   localStorage.removeItem('sotregen_feedbacks');
+  localStorage.removeItem('sotregen_sheets_url');
 
   try {
     await fetch('/api/feedbacks', { method: 'DELETE' });
@@ -637,8 +666,9 @@ window.clearAllFeedbacks = async function() {
     // API offline ou rodando estático
   }
 
+  updateSheetsStatusBadge();
   renderDashboard();
-  showToast('🗑️ Todas as avaliações locais foram removidas!');
+  showToast('🗑️ Todas as avaliações foram limpas com sucesso!');
 };
 
 function showToast(msg) {
